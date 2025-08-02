@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/cryptography/Nonces.sol";
 
-contract RivexToken is ERC20, ERC20Permit, ERC20Votes, AccessControl, Pausable {
+contract RivexToken is ERC20, ERC20Permit, ERC20Votes, AccessControl, Pausable, Nonces {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
@@ -48,18 +49,32 @@ contract RivexToken is ERC20, ERC20Permit, ERC20Votes, AccessControl, Pausable {
         _unpause();
     }
 
-    // Override functions for ERC20Votes
-    function _update(address from, address to, uint256 value)
+    // Override functions for multiple inheritance
+    function _afterTokenTransfer(address from, address to, uint256 amount)
         internal
         override(ERC20, ERC20Votes)
     {
-        super._update(from, to, value);
+        super._afterTokenTransfer(from, to, amount);
+    }
+
+    function _mint(address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._mint(to, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._burn(account, amount);
     }
 
     function nonces(address owner)
         public
         view
-        override(ERC20Permit)
+        override(ERC20Permit, Nonces)
         returns (uint256)
     {
         return super.nonces(owner);

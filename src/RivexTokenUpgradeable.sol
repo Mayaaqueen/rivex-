@@ -137,17 +137,17 @@ contract RivexTokenUpgradeable is
      * @dev Overrides ERC20 and ERC20Votes _beforeTokenTransfer to include pause functionality
      * @param from The address sending tokens
      * @param to The address receiving tokens
-     * @param value The amount of tokens being transferred
+     * @param amount The amount of tokens being transferred
      * 
      * Success: Tokens are transferred and voting power is updated when contract is not paused
      * Revert: If contract is paused
      */
-    function _beforeTokenTransfer(address from, address to, uint256 value)
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
         internal
-        override(ERC20Upgradeable, ERC20VotesUpgradeable)
+        override
         whenNotPaused
     {
-        super._beforeTokenTransfer(from, to, value);
+        super._beforeTokenTransfer(from, to, amount);
     }
 
     /**
@@ -198,7 +198,7 @@ contract RivexTokenUpgradeable is
 
     /**
      * @notice Returns the current nonce for a given owner for permit functionality
-     * @dev Resolves conflict between ERC20Permit and Nonces implementations
+     * @dev Resolves conflict between ERC20Permit implementations
      * @param owner The address to get the nonce for
      * @return The current nonce value
      * 
