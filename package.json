@@ -10,6 +10,8 @@
     "lint": "next lint",
     "test": "forge test",
     "test:coverage": "forge coverage",
+    "install-deps": "bash scripts/install-deps.sh",
+    "troubleshoot": "bash scripts/troubleshoot.sh",
     "deploy": "bash script/deploy-upgradeable.sh",
     "deploy:base": "forge script script/DeployUpgradeable.s.sol:DeployUpgradeableScript --rpc-url base --broadcast --verify",
     "deploy:base-sepolia": "forge script script/DeployUpgradeable.s.sol:DeployUpgradeableScript --rpc-url base_sepolia --broadcast --verify",

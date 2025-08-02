@@ -31,8 +31,8 @@ write = ["./"]
 
 # Remappings for OpenZeppelin v5.4.0 and Chainlink
 remappings = [
-    "@openzeppelin/=lib/openzeppelin-contracts/",
-    "@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
     "@chainlink/=lib/chainlink/"
 ]
 
