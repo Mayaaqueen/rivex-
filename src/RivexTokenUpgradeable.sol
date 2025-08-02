@@ -35,6 +35,14 @@ contract RivexTokenUpgradeable is
         _disableInitializers();
     }
 
+    /**
+     * @notice Initializes the RivexFi token contract
+     * @dev Sets up ERC20, Permit, Votes, AccessControl, Pausable, and UUPS functionality
+     * @param admin The address that will receive all admin roles and initial token supply
+     * 
+     * Success: Contract is initialized with proper roles, token metadata, and initial supply minted to admin
+     * Revert: If called more than once (already initialized)
+     */
     function initialize(address admin) public initializer {
         __ERC20_init("RivexFi", "RIVEX");
         __ERC20Permit_init("RivexFi");
@@ -52,30 +60,87 @@ contract RivexTokenUpgradeable is
         _mint(admin, MAX_SUPPLY);
     }
 
+    /**
+     * @notice Mints new RIVEX tokens to a specified address
+     * @dev Only addresses with MINTER_ROLE can call this function, respects max supply limit
+     * @param to The address that will receive the minted tokens
+     * @param amount The amount of tokens to mint (in wei)
+     * 
+     * Success: New tokens are minted and added to recipient's balance
+     * Revert: If caller doesn't have MINTER_ROLE, would exceed max supply, or contract is paused
+     */
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
         require(totalSupply() + amount <= MAX_SUPPLY, "RivexToken: Max supply exceeded");
         _mint(to, amount);
     }
 
+    /**
+     * @notice Burns tokens from the caller's balance
+     * @dev Anyone can burn their own tokens, reduces total supply
+     * @param amount The amount of tokens to burn (in wei)
+     * 
+     * Success: Tokens are burned and removed from caller's balance, total supply decreases
+     * Revert: If caller has insufficient balance or contract is paused
+     */
     function burn(uint256 amount) public {
         _burn(_msgSender(), amount);
     }
 
+    /**
+     * @notice Burns tokens from a specified account
+     * @dev Only addresses with BURNER_ROLE can call this function
+     * @param account The address from which tokens will be burned
+     * @param amount The amount of tokens to burn (in wei)
+     * 
+     * Success: Tokens are burned from the specified account, total supply decreases
+     * Revert: If caller doesn't have BURNER_ROLE, account has insufficient balance, or contract is paused
+     */
     function burnFrom(address account, uint256 amount) public onlyRole(BURNER_ROLE) {
         _burn(account, amount);
     }
 
+    /**
+     * @notice Pauses all token transfers and operations
+     * @dev Only addresses with PAUSER_ROLE can call this function
+     * 
+     * Success: Contract is paused, all transfers and operations are blocked
+     * Revert: If caller doesn't have PAUSER_ROLE or contract is already paused
+     */
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
+    /**
+     * @notice Unpauses the contract, allowing transfers and operations
+     * @dev Only addresses with PAUSER_ROLE can call this function
+     * 
+     * Success: Contract is unpaused, transfers and operations are allowed again
+     * Revert: If caller doesn't have PAUSER_ROLE or contract is not paused
+     */
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
+    /**
+     * @notice Authorizes contract upgrades
+     * @dev Only addresses with UPGRADER_ROLE can authorize upgrades
+     * @param newImplementation The address of the new implementation contract
+     * 
+     * Success: Upgrade is authorized
+     * Revert: If caller doesn't have UPGRADER_ROLE
+     */
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 
-    // OpenZeppelin v5.0.0 uses _update instead of _beforeTokenTransfer
+    /**
+     * @notice Internal function to handle token transfers with pause check and voting power updates
+     * @dev OpenZeppelin v5.4.0 uses _update function for all transfer logic
+     * @param from The address sending tokens
+     * @param to The address receiving tokens
+     * @param value The amount of tokens being transferred
+     * 
+     * Success: Tokens are transferred and voting power is updated when contract is not paused
+     * Revert: If contract is paused
+     */
     function _update(address from, address to, uint256 value)
         internal
         override(ERC20Upgradeable, ERC20VotesUpgradeable)
@@ -84,6 +149,15 @@ contract RivexTokenUpgradeable is
         super._update(from, to, value);
     }
 
+    /**
+     * @notice Returns the current nonce for a given owner for permit functionality
+     * @dev Resolves conflict between ERC20Permit and Nonces implementations in v5.4.0
+     * @param owner The address to get the nonce for
+     * @return The current nonce value
+     * 
+     * Success: Always returns the current nonce
+     * Revert: Never reverts
+     */
     function nonces(address owner)
         public
         view

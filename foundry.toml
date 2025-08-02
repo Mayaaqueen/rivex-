@@ -29,7 +29,7 @@ enabled = true
 read = ["./"]
 write = ["./"]
 
-# Remappings for OpenZeppelin v5.0.0 and Chainlink
+# Remappings for OpenZeppelin v5.4.0 and Chainlink
 remappings = [
     "@openzeppelin/=lib/openzeppelin-contracts/",
     "@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/",

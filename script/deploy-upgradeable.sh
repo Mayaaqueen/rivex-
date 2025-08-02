@@ -14,10 +14,10 @@ if [ -z "$BASESCAN_API_KEY" ]; then
     echo "⚠️  Warning: BASESCAN_API_KEY not set, contract verification will be skipped"
 fi
 
-# Install dependencies
+# Install dependencies for OpenZeppelin v5.4.0
 echo "📦 Installing dependencies..."
-forge install OpenZeppelin/openzeppelin-contracts@v5.0.0 --no-commit
-forge install OpenZeppelin/openzeppelin-contracts-upgradeable@v5.0.0 --no-commit
+forge install OpenZeppelin/openzeppelin-contracts@v5.4.0 --no-commit
+forge install OpenZeppelin/openzeppelin-contracts-upgradeable@v5.4.0 --no-commit
 forge install smartcontractkit/chainlink@v2.9.0 --no-commit
 
 # Compile contracts
@@ -58,3 +58,4 @@ echo "   - Liquid Staking Protocol with rewards"
 echo "   - Upgradeable Lending Protocol"
 echo "   - Chainlink Price Oracle integration"
 echo "   - All contracts are upgradeable via UUPS proxy pattern"
+echo "   - Compatible with OpenZeppelin v5.4.0"

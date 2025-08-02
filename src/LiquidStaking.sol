@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./wRivexETH.sol";
@@ -54,7 +54,7 @@ contract LiquidStaking is
      * @notice Initializes the Liquid Staking contract
      * @dev Sets up all necessary parameters and roles for the staking protocol
      * @param _wRivexETHToken Address of the wRivexETH token contract
-     * @param admin Address that will receive admin roles
+     * @param initialOwner Address that will receive admin roles
      * @param _minStakeAmount Minimum amount of ETH required for staking
      * @param _unstakeFee Fee charged when unstaking (in basis points)
      * @param _rewardRate Annual reward rate (in basis points)
@@ -64,7 +64,7 @@ contract LiquidStaking is
      */
     function initialize(
         address _wRivexETHToken,
-        address admin,
+        address initialOwner,
         uint256 _minStakeAmount,
         uint256 _unstakeFee,
         uint256 _rewardRate
@@ -81,9 +81,9 @@ contract LiquidStaking is
         rewardRate = _rewardRate;
         lastRewardUpdate = block.timestamp;
 
-        _grantRole(DEFAULT_ADMIN_ROLE, admin);
-        _grantRole(ADMIN_ROLE, admin);
-        _grantRole(UPGRADER_ROLE, admin);
+        _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
+        _grantRole(ADMIN_ROLE, initialOwner);
+        _grantRole(UPGRADER_ROLE, initialOwner);
     }
 
     /**
