@@ -9,8 +9,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title wRivexETH - Wrapped RivexFi ETH Token
- * @notice This contract represents wrapped ETH with 1:1 backing ratio
- * @dev Upgradeable ERC20 token with access control and pausable functionality using Transparent Proxy
+ * @notice This contract represents wrapped ETH with 1:1 backing ratio, similar to WETH
+ * @dev Upgradeable ERC20 token that wraps/unwraps ETH with access control and pausable functionality using Transparent Proxy
  */
 contract wRivexETH is 
     Initializable,
@@ -22,6 +22,11 @@ contract wRivexETH is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    event Deposit(address indexed user, uint256 amount);
+    event Withdrawal(address indexed user, uint256 amount);
+    event ETHWithdrawn(address indexed owner, uint256 amount);
+    event LiquidityAdded(address indexed owner, uint256 amount);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -124,5 +129,93 @@ contract wRivexETH is
         whenNotPaused
     {
         super._update(from, to, value);
+    }
+
+    /**
+     * @notice Deposits ETH and mints equivalent wRivexETH tokens
+     * @dev Converts ETH to wRivexETH at 1:1 ratio
+     * 
+     * Success: ETH is deposited and equivalent wRivexETH tokens are minted to sender
+     * Revert: If no ETH sent or contract is paused
+     */
+    function deposit() external payable whenNotPaused {
+        require(msg.value > 0, "wRivexETH: No ETH sent");
+        _mint(msg.sender, msg.value);
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    /**
+     * @notice Withdraws ETH by burning wRivexETH tokens
+     * @dev Burns wRivexETH tokens and sends equivalent ETH to user
+     * @param amount Amount of wRivexETH tokens to burn for ETH
+     * 
+     * Success: wRivexETH tokens are burned and equivalent ETH is sent to user
+     * Revert: If insufficient balance, insufficient contract ETH, or contract is paused
+     */
+    function withdraw(uint256 amount) external whenNotPaused {
+        require(amount > 0, "wRivexETH: Invalid amount");
+        require(balanceOf(msg.sender) >= amount, "wRivexETH: Insufficient balance");
+        require(address(this).balance >= amount, "wRivexETH: Insufficient ETH in contract");
+        
+        _burn(msg.sender, amount);
+        
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "wRivexETH: ETH transfer failed");
+        
+        emit Withdrawal(msg.sender, amount);
+    }
+
+    /**
+     * @notice Allows owner to withdraw ETH for pool management and cleanup
+     * @dev Only owner can withdraw ETH for liquidity management purposes
+     * @param amount Amount of ETH to withdraw
+     * 
+     * Success: ETH is transferred to owner for pool management
+     * Revert: If caller is not owner, insufficient balance, or transfer fails
+     */
+    function withdrawETH(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(amount <= address(this).balance, "wRivexETH: Insufficient ETH balance");
+        
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "wRivexETH: ETH transfer failed");
+        
+        emit ETHWithdrawn(msg.sender, amount);
+    }
+
+    /**
+     * @notice Allows owner to add liquidity to the pool
+     * @dev Owner can add ETH to ensure sufficient liquidity for withdrawals
+     * 
+     * Success: ETH is added to contract balance for liquidity
+     * Revert: If caller is not owner or no ETH sent
+     */
+    function addLiquidity() external payable onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(msg.value > 0, "wRivexETH: No ETH sent");
+        emit LiquidityAdded(msg.sender, msg.value);
+    }
+
+    /**
+     * @notice Fallback function to handle direct ETH deposits
+     * @dev Automatically wraps ETH sent to contract into wRivexETH
+     * 
+     * Success: ETH is wrapped into wRivexETH tokens for sender
+     * Revert: If contract is paused
+     */
+    receive() external payable {
+        if (msg.value > 0) {
+            _mint(msg.sender, msg.value);
+            emit Deposit(msg.sender, msg.value);
+        }
+    }
+
+    /**
+     * @notice Gets the total ETH balance held by the contract
+     * @return The contract's ETH balance
+     * 
+     * Success: Always returns current ETH balance
+     * Revert: Never reverts
+     */
+    function getETHBalance() external view returns (uint256) {
+        return address(this).balance;
     }
 }
