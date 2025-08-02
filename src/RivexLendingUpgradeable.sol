@@ -88,7 +88,7 @@ contract RivexLendingUpgradeable is
     function initialize(
         address _priceOracle,
         address _rivexToken,
-        address _wRivexETHToken,
+        address payable _wRivexETHToken,
         address initialOwner
     ) public initializer {
         __AccessControl_init();
@@ -555,12 +555,12 @@ contract RivexLendingUpgradeable is
         require(collateralInfo.supplied >= collateralToSeize, "RivexLending: Insufficient collateral");
         
         // Transfer repayment from liquidator
-        (bool success, ) = tokenBorrowed.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), liquidationAmount));
-        require(success, "RivexLending: Transfer failed");
+        (bool transferSuccess, ) = tokenBorrowed.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", msg.sender, address(this), liquidationAmount));
+        require(transferSuccess, "RivexLending: Transfer failed");
         
         // Transfer collateral to liquidator
-        (bool success, ) = tokenCollateral.call(abi.encodeWithSignature("transfer(address,uint256)", msg.sender, collateralToSeize));
-        require(success, "RivexLending: Transfer failed");
+        (bool collateralSuccess, ) = tokenCollateral.call(abi.encodeWithSignature("transfer(address,uint256)", msg.sender, collateralToSeize));
+        require(collateralSuccess, "RivexLending: Transfer failed");
         
         // Update borrower's positions
         borrowerInfo.borrowed -= liquidationAmount;

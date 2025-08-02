@@ -60,7 +60,7 @@ contract LiquidStaking is
      * Revert: If called more than once or with invalid parameters
      */
     function initialize(
-        address _wRivexETHToken,
+        address payable _wRivexETHToken,
         address initialOwner,
         uint256 _minStakeAmount,
         uint256 _unstakeFee,

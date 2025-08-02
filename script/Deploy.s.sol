@@ -75,7 +75,7 @@ contract DeployScript is Script {
             address(proxyAdmin),
             wRivexETHInitData
         );
-        wRivexETH wRivexETHToken = wRivexETH(address(wRivexETHProxy));
+        wRivexETH wRivexETHToken = wRivexETH(payable(address(wRivexETHProxy)));
         console.log("wRivexETH proxy deployed at:", address(wRivexETHToken));
         
         // Deploy LiquidStaking Implementation

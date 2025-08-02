@@ -2,12 +2,13 @@
 pragma solidity ^0.8.30;
 
 import "forge-std/Script.sol";
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "../src/RivexTokenUpgradeable.sol";
 import "../src/PriceOracleUpgradeable.sol";
 import "../src/RivexLendingUpgradeable.sol";
 import "../src/wRivexETH.sol";
 import "../src/LiquidStaking.sol";
+import "../src/RivexDEXAggregator.sol";
 
 contract UpgradeScript is Script {
     function run() external {
@@ -18,12 +19,17 @@ contract UpgradeScript is Script {
         
         console.log("Upgrading contracts with deployer:", deployer);
         
+        // Get ProxyAdmin address
+        address proxyAdminAddress = vm.envAddress("PROXY_ADMIN");
+        ProxyAdmin proxyAdmin = ProxyAdmin(proxyAdminAddress);
+        
         // Replace these addresses with your deployed proxy addresses
         address rivexTokenProxy = vm.envAddress("RIVEX_TOKEN_PROXY");
         address priceOracleProxy = vm.envAddress("PRICE_ORACLE_PROXY");
         address wRivexETHProxy = vm.envAddress("WRIVEXETH_PROXY");
         address liquidStakingProxy = vm.envAddress("LIQUID_STAKING_PROXY");
         address rivexLendingProxy = vm.envAddress("RIVEX_LENDING_PROXY");
+        address dexAggregatorProxy = vm.envAddress("DEX_AGGREGATOR_PROXY");
         
         // Deploy new implementations
         console.log("Deploying new implementations...");
@@ -43,38 +49,53 @@ contract UpgradeScript is Script {
         RivexLendingUpgradeable newRivexLendingImpl = new RivexLendingUpgradeable();
         console.log("New RivexLending implementation:", address(newRivexLendingImpl));
         
-        // Upgrade contracts
+        RivexDEXAggregator newDexAggregatorImpl = new RivexDEXAggregator();
+        console.log("New RivexDEXAggregator implementation:", address(newDexAggregatorImpl));
+        
+        // Upgrade contracts through ProxyAdmin
         console.log("Upgrading contracts...");
         
-        RivexTokenUpgradeable(rivexTokenProxy).upgradeToAndCall(
+        proxyAdmin.upgradeAndCall(
+            rivexTokenProxy,
             address(newRivexTokenImpl),
             ""
         );
         console.log("RivexToken upgraded");
         
-        PriceOracleUpgradeable(priceOracleProxy).upgradeToAndCall(
+        proxyAdmin.upgradeAndCall(
+            priceOracleProxy,
             address(newPriceOracleImpl),
             ""
         );
         console.log("PriceOracle upgraded");
         
-        wRivexETH(wRivexETHProxy).upgradeToAndCall(
+        proxyAdmin.upgradeAndCall(
+            wRivexETHProxy,
             address(newWRivexETHImpl),
             ""
         );
         console.log("wRivexETH upgraded");
         
-        LiquidStaking(payable(liquidStakingProxy)).upgradeToAndCall(
+        proxyAdmin.upgradeAndCall(
+            liquidStakingProxy,
             address(newLiquidStakingImpl),
             ""
         );
         console.log("LiquidStaking upgraded");
         
-        RivexLendingUpgradeable(payable(rivexLendingProxy)).upgradeToAndCall(
+        proxyAdmin.upgradeAndCall(
+            rivexLendingProxy,
             address(newRivexLendingImpl),
             ""
         );
         console.log("RivexLending upgraded");
+        
+        proxyAdmin.upgradeAndCall(
+            dexAggregatorProxy,
+            address(newDexAggregatorImpl),
+            ""
+        );
+        console.log("RivexDEXAggregator upgraded");
         
         vm.stopBroadcast();
         
@@ -86,5 +107,6 @@ contract UpgradeScript is Script {
         console.log("wRivexETH:", address(newWRivexETHImpl));
         console.log("LiquidStaking:", address(newLiquidStakingImpl));
         console.log("RivexLending:", address(newRivexLendingImpl));
+        console.log("RivexDEXAggregator:", address(newDexAggregatorImpl));
     }
 }
