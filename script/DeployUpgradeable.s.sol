@@ -97,7 +97,7 @@ contract DeployUpgradeableScript is Script {
             address(priceOracle),
             address(rivexToken),
             address(wRivexETHToken),
-            deployer
+            deployer  // changed from admin to deployer
         );
         ERC1967Proxy rivexLendingProxy = new ERC1967Proxy(
             address(rivexLendingImpl),
@@ -129,12 +129,12 @@ contract DeployUpgradeableScript is Script {
             0.75e18,    // 75% collateral factor
             0.1e18,     // 10% reserve factor
             1000 ether, // 1000 ETH borrow cap
-            10000 ether // 10000 ETH supply cap
+            10000 ether // 10M ETH supply cap
         );
         console.log("wRivexETH market listed");
         
         // List USDT market (Base network USDT address)
-        address usdtAddress = 0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2;
+        address usdtAddress = 0xfde4C96c8593536E31F229EA8f3D1F4b0a16Bb70;
         rivexLending.listMarket(
             usdtAddress,
             0.8e18,      // 80% collateral factor

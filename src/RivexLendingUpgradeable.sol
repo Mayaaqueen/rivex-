@@ -4,8 +4,8 @@ pragma solidity ^0.8.30;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./PriceOracleUpgradeable.sol";
@@ -86,7 +86,7 @@ contract RivexLendingUpgradeable is
      * @param _priceOracle Address of the price oracle contract
      * @param _rivexToken Address of the RIVEX token contract
      * @param _wRivexETHToken Address of the wRivexETH token contract
-     * @param admin Address that will receive all admin roles
+     * @param initialOwner Address that will receive all admin roles
      * 
      * Success: Contract is initialized with proper dependencies and roles
      * Revert: If called more than once or with invalid addresses
@@ -95,7 +95,7 @@ contract RivexLendingUpgradeable is
         address _priceOracle,
         address _rivexToken,
         address _wRivexETHToken,
-        address admin
+        address initialOwner
     ) public initializer {
         __AccessControl_init();
         __ReentrancyGuard_init();
@@ -106,10 +106,10 @@ contract RivexLendingUpgradeable is
         rivexToken = RivexTokenUpgradeable(_rivexToken);
         wRivexETHToken = wRivexETH(_wRivexETHToken);
         
-        _grantRole(DEFAULT_ADMIN_ROLE, admin);
-        _grantRole(ADMIN_ROLE, admin);
-        _grantRole(LIQUIDATOR_ROLE, admin);
-        _grantRole(UPGRADER_ROLE, admin);
+        _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
+        _grantRole(ADMIN_ROLE, initialOwner);
+        _grantRole(LIQUIDATOR_ROLE, initialOwner);
+        _grantRole(UPGRADER_ROLE, initialOwner);
     }
     
     /**
