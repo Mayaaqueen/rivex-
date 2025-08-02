@@ -1,7 +1,7 @@
 {
-  "name": "rivexfi-lending",
-  "version": "1.0.0",
-  "description": "RivexFi Lending Protocol - A decentralized lending platform on Base Network",
+  "name": "rivexfi-lending-upgradeable",
+  "version": "2.0.0",
+  "description": "RivexFi Upgradeable Lending Protocol with Liquid Staking - A decentralized lending platform on Base Network",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,11 +9,13 @@
     "start": "next start",
     "lint": "next lint",
     "test": "forge test",
-    "deploy": "bash script/deploy.sh",
-    "deploy:base": "forge script script/Deploy.s.sol:DeployScript --rpc-url base --broadcast --verify",
-    "deploy:base-sepolia": "forge script script/Deploy.s.sol:DeployScript --rpc-url base_sepolia --broadcast --verify"
+    "test:coverage": "forge coverage",
+    "deploy": "bash script/deploy-upgradeable.sh",
+    "deploy:base": "forge script script/DeployUpgradeable.s.sol:DeployUpgradeableScript --rpc-url base --broadcast --verify",
+    "deploy:base-sepolia": "forge script script/DeployUpgradeable.s.sol:DeployUpgradeableScript --rpc-url base_sepolia --broadcast --verify",
+    "upgrade": "forge script script/Upgrade.s.sol --rpc-url base --broadcast --verify"
   },
-  "keywords": ["defi", "lending", "base", "ethereum", "solidity"],
+  "keywords": ["defi", "lending", "liquid-staking", "upgradeable", "base", "ethereum", "solidity", "uups"],
   "author": "RivexFi Team",
   "license": "MIT",
   "dependencies": {
