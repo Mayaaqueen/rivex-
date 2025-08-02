@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -125,7 +125,7 @@ contract wRivexETH is
 
     /**
      * @notice Internal function to handle token transfers with pause check
-     * @dev Overrides ERC20 _update to include pause functionality
+     * @dev Overrides ERC20 _beforeTokenTransfer to include pause functionality
      * @param from The address sending tokens
      * @param to The address receiving tokens
      * @param value The amount of tokens being transferred
@@ -133,11 +133,11 @@ contract wRivexETH is
      * Success: Tokens are transferred when contract is not paused
      * Revert: If contract is paused
      */
-    function _update(address from, address to, uint256 value)
+    function _beforeTokenTransfer(address from, address to, uint256 value)
         internal
         override
         whenNotPaused
     {
-        super._update(from, to, value);
+        super._beforeTokenTransfer(from, to, value);
     }
 }

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract RivexToken is ERC20, ERC20Permit, ERC20Votes, AccessControl, Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -59,7 +59,7 @@ contract RivexToken is ERC20, ERC20Permit, ERC20Votes, AccessControl, Pausable {
     function nonces(address owner)
         public
         view
-        override(ERC20Permit, Nonces)
+        override(ERC20Permit)
         returns (uint256)
     {
         return super.nonces(owner);
@@ -68,7 +68,7 @@ contract RivexToken is ERC20, ERC20Permit, ERC20Votes, AccessControl, Pausable {
     function _beforeTokenTransfer(address from, address to, uint256 amount)
         internal
         whenNotPaused
-        override
+        override(ERC20, ERC20Votes)
     {
         super._beforeTokenTransfer(from, to, amount);
     }
