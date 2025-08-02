@@ -1,7 +1,7 @@
 {
-  "name": "rivexfi-lending-upgradeable",
+  "name": "rivexfi-lending-transparent",
   "version": "2.0.0",
-  "description": "RivexFi Upgradeable Lending Protocol with Liquid Staking - A decentralized lending platform on Base Network",
+  "description": "RivexFi Transparent Upgradeable Lending Protocol with Liquid Staking - A decentralized lending platform on Base Network",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,12 +12,21 @@
     "test:coverage": "forge coverage",
     "install-deps": "bash scripts/install-deps.sh",
     "troubleshoot": "bash scripts/troubleshoot.sh",
-    "deploy": "bash script/deploy-upgradeable.sh",
-    "deploy:base": "forge script script/DeployUpgradeable.s.sol:DeployUpgradeableScript --rpc-url base --broadcast --verify",
-    "deploy:base-sepolia": "forge script script/DeployUpgradeable.s.sol:DeployUpgradeableScript --rpc-url base_sepolia --broadcast --verify",
-    "upgrade": "forge script script/Upgrade.s.sol --rpc-url base --broadcast --verify"
+    "deploy": "bash script/deploy-transparent.sh",
+    "deploy:base": "forge script script/DeployTransparent.s.sol:DeployTransparentScript --rpc-url base --broadcast --verify",
+    "deploy:base-sepolia": "forge script script/DeployTransparent.s.sol:DeployTransparentScript --rpc-url base_sepolia --broadcast --verify",
+    "upgrade": "forge script script/UpgradeTransparent.s.sol --rpc-url base --broadcast --verify"
   },
-  "keywords": ["defi", "lending", "liquid-staking", "upgradeable", "base", "ethereum", "solidity", "uups"],
+  "keywords": [
+    "defi",
+    "lending",
+    "liquid-staking",
+    "transparent-proxy",
+    "base",
+    "ethereum",
+    "solidity",
+    "openzeppelin"
+  ],
   "author": "RivexFi Team",
   "license": "MIT",
   "dependencies": {

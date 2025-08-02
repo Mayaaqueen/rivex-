@@ -7,12 +7,11 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpg
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title RivexTokenUpgradeable - RivexFi Governance Token
  * @notice ERC20 token with governance features, permit functionality, and access control
- * @dev Upgradeable token with voting capabilities and role-based permissions
+ * @dev Upgradeable token with voting capabilities and role-based permissions using Transparent Proxy
  */
 contract RivexTokenUpgradeable is 
     Initializable,
@@ -20,13 +19,11 @@ contract RivexTokenUpgradeable is
     ERC20PermitUpgradeable,
     ERC20VotesUpgradeable,
     AccessControlUpgradeable,
-    PausableUpgradeable,
-    UUPSUpgradeable
+    PausableUpgradeable
 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
-    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     uint256 public constant MAX_SUPPLY = 1_000_000_000 * 10**18;
 
@@ -37,7 +34,7 @@ contract RivexTokenUpgradeable is
 
     /**
      * @notice Initializes the RivexFi token contract
-     * @dev Sets up ERC20, Permit, Votes, AccessControl, Pausable, and UUPS functionality
+     * @dev Sets up ERC20, Permit, Votes, AccessControl, and Pausable functionality
      * @param admin The address that will receive all admin roles and initial token supply
      * 
      * Success: Contract is initialized with proper roles, token metadata, and initial supply minted to admin
@@ -49,13 +46,11 @@ contract RivexTokenUpgradeable is
         __ERC20Votes_init();
         __AccessControl_init();
         __Pausable_init();
-        __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(MINTER_ROLE, admin);
         _grantRole(PAUSER_ROLE, admin);
         _grantRole(BURNER_ROLE, admin);
-        _grantRole(UPGRADER_ROLE, admin);
         
         _mint(admin, MAX_SUPPLY);
     }
@@ -120,16 +115,6 @@ contract RivexTokenUpgradeable is
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
-
-    /**
-     * @notice Authorizes contract upgrades
-     * @dev Only addresses with UPGRADER_ROLE can authorize upgrades
-     * @param newImplementation The address of the new implementation contract
-     * 
-     * Success: Upgrade is authorized
-     * Revert: If caller doesn't have UPGRADER_ROLE
-     */
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 
     /**
      * @notice Internal function to handle token transfers with pause check and voting power updates

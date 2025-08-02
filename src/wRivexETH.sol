@@ -6,25 +6,22 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUp
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title wRivexETH - Wrapped RivexFi ETH Token
  * @notice This contract represents wrapped ETH with 1:1 backing ratio
- * @dev Upgradeable ERC20 token with access control and pausable functionality
+ * @dev Upgradeable ERC20 token with access control and pausable functionality using Transparent Proxy
  */
 contract wRivexETH is 
     Initializable,
     ERC20Upgradeable,
     ERC20PermitUpgradeable,
     AccessControlUpgradeable,
-    PausableUpgradeable,
-    UUPSUpgradeable
+    PausableUpgradeable
 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -33,7 +30,7 @@ contract wRivexETH is
 
     /**
      * @notice Initializes the wRivexETH token contract
-     * @dev Sets up ERC20, Permit, AccessControl, Pausable, and UUPS functionality
+     * @dev Sets up ERC20, Permit, AccessControl, and Pausable functionality
      * @param initialOwner The address that will receive all admin roles
      * 
      * Success: Contract is initialized with proper roles and token metadata
@@ -44,13 +41,11 @@ contract wRivexETH is
         __ERC20Permit_init("Wrapped RivexFi ETH");
         __AccessControl_init();
         __Pausable_init();
-        __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(MINTER_ROLE, initialOwner);
         _grantRole(BURNER_ROLE, initialOwner);
         _grantRole(PAUSER_ROLE, initialOwner);
-        _grantRole(UPGRADER_ROLE, initialOwner);
     }
 
     /**
@@ -112,16 +107,6 @@ contract wRivexETH is
     function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
-
-    /**
-     * @notice Authorizes contract upgrades
-     * @dev Only addresses with UPGRADER_ROLE can authorize upgrades
-     * @param newImplementation The address of the new implementation contract
-     * 
-     * Success: Upgrade is authorized
-     * Revert: If caller doesn't have UPGRADER_ROLE
-     */
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 
     /**
      * @notice Internal function to handle token transfers with pause check

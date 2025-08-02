@@ -16,23 +16,9 @@ fi
 
 # Install dependencies for OpenZeppelin v5.4.0
 echo "📦 Installing dependencies..."
-
-# Clean previous installations
-rm -rf lib/ cache/ out/
-
-# Install dependencies
 forge install OpenZeppelin/openzeppelin-contracts@v5.4.0 --no-commit
 forge install OpenZeppelin/openzeppelin-contracts-upgradeable@v5.4.0 --no-commit
 forge install smartcontractkit/chainlink@v2.9.0 --no-commit
-
-# Update submodules
-git submodule update --init --recursive
-
-# Verify critical files exist
-if [ ! -f "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol" ]; then
-    echo "❌ Critical OpenZeppelin files missing. Please run: npm run install-deps"
-    exit 1
-fi
 
 # Compile contracts
 echo "🔨 Compiling contracts..."

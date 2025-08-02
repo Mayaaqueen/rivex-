@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./PriceOracleUpgradeable.sol";
 import "./RivexTokenUpgradeable.sol";
 import "./wRivexETH.sol";
@@ -15,20 +14,18 @@ import "./wRivexETH.sol";
 /**
  * @title RivexLendingUpgradeable - RivexFi Lending Protocol
  * @notice Decentralized lending protocol allowing users to supply, borrow, and earn interest
- * @dev Upgradeable lending protocol with dynamic interest rates and liquidation mechanisms
+ * @dev Upgradeable lending protocol with dynamic interest rates and liquidation mechanisms using Transparent Proxy
  */
 contract RivexLendingUpgradeable is 
     Initializable,
     AccessControlUpgradeable,
     ReentrancyGuardUpgradeable,
-    PausableUpgradeable,
-    UUPSUpgradeable
+    PausableUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant LIQUIDATOR_ROLE = keccak256("LIQUIDATOR_ROLE");
-    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     
     struct Market {
         bool isListed;
@@ -100,7 +97,6 @@ contract RivexLendingUpgradeable is
         __AccessControl_init();
         __ReentrancyGuard_init();
         __Pausable_init();
-        __UUPSUpgradeable_init();
 
         priceOracle = PriceOracleUpgradeable(_priceOracle);
         rivexToken = RivexTokenUpgradeable(_rivexToken);
@@ -109,7 +105,6 @@ contract RivexLendingUpgradeable is
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(ADMIN_ROLE, initialOwner);
         _grantRole(LIQUIDATOR_ROLE, initialOwner);
-        _grantRole(UPGRADER_ROLE, initialOwner);
     }
     
     /**
@@ -872,16 +867,6 @@ contract RivexLendingUpgradeable is
         market.borrowCap = borrowCap;
         market.supplyCap = supplyCap;
     }
-
-    /**
-     * @notice Authorizes contract upgrades
-     * @dev Only addresses with UPGRADER_ROLE can authorize upgrades
-     * @param newImplementation Address of the new implementation
-     * 
-     * Success: Upgrade is authorized
-     * Revert: If caller doesn't have UPGRADER_ROLE
-     */
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 
     /**
      * @notice Fallback function to receive ETH

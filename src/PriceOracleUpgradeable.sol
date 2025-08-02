@@ -4,14 +4,13 @@ pragma solidity ^0.8.30;
 import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title PriceOracleUpgradeable - Chainlink Price Feed Oracle
  * @notice Provides real-time price data from Chainlink oracles for various tokens
- * @dev Upgradeable contract that manages multiple price feeds and validates price data
+ * @dev Upgradeable contract that manages multiple price feeds and validates price data using Transparent Proxy
  */
-contract PriceOracleUpgradeable is Initializable, OwnableUpgradeable, UUPSUpgradeable {
+contract PriceOracleUpgradeable is Initializable, OwnableUpgradeable {
     mapping(address => AggregatorV3Interface) public priceFeeds;
     
     // Base network Chainlink price feeds
@@ -35,7 +34,6 @@ contract PriceOracleUpgradeable is Initializable, OwnableUpgradeable, UUPSUpgrad
      */
     function initialize(address initialOwner) public initializer {
         __Ownable_init(initialOwner);
-        __UUPSUpgradeable_init();
         
         // Initialize price feeds for Base network
         priceFeeds[address(0)] = AggregatorV3Interface(ETH_USD_FEED); // ETH
@@ -108,14 +106,4 @@ contract PriceOracleUpgradeable is Initializable, OwnableUpgradeable, UUPSUpgrad
         // Return ETH price in USDT terms (scaled by 1e18)
         return (ethPrice * 1e18) / usdtPrice;
     }
-
-    /**
-     * @notice Authorizes contract upgrades
-     * @dev Only owner can authorize upgrades
-     * @param newImplementation Address of the new implementation
-     * 
-     * Success: Upgrade is authorized
-     * Revert: If caller is not owner
-     */
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

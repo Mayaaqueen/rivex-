@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🔧 Installing Foundry dependencies for RivexFi Protocol..."
+echo "🔧 Installing Foundry dependencies for RivexFi Transparent Proxy Protocol..."
 
 # Remove existing lib directory to start fresh
 rm -rf lib/
@@ -24,14 +24,14 @@ forge install smartcontractkit/chainlink@v2.9.0 --no-commit
 echo "✅ Verifying installations..."
 
 if [ -d "lib/openzeppelin-contracts" ]; then
-    echo "✅ OpenZeppelin Contracts installed"
+    echo "✅ OpenZeppelin Contracts v5.4.0 installed"
 else
     echo "❌ OpenZeppelin Contracts installation failed"
     exit 1
 fi
 
 if [ -d "lib/openzeppelin-contracts-upgradeable" ]; then
-    echo "✅ OpenZeppelin Contracts Upgradeable installed"
+    echo "✅ OpenZeppelin Contracts Upgradeable v5.4.0 installed"
 else
     echo "❌ OpenZeppelin Contracts Upgradeable installation failed"
     exit 1
@@ -44,8 +44,20 @@ else
     exit 1
 fi
 
-# Check specific files
-echo "🔍 Checking specific contract files..."
+# Check specific files for Transparent Proxy
+echo "🔍 Checking Transparent Proxy specific files..."
+
+if [ -f "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol" ]; then
+    echo "✅ TransparentUpgradeableProxy.sol found"
+else
+    echo "❌ TransparentUpgradeableProxy.sol not found"
+fi
+
+if [ -f "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol" ]; then
+    echo "✅ ProxyAdmin.sol found"
+else
+    echo "❌ ProxyAdmin.sol not found"
+fi
 
 if [ -f "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol" ]; then
     echo "✅ IERC20Upgradeable.sol found"
@@ -59,5 +71,6 @@ else
     echo "❌ SafeERC20Upgradeable.sol not found"
 fi
 
-echo "🎉 All dependencies installed successfully!"
+echo "🎉 All dependencies for Transparent Proxy pattern installed successfully!"
 echo "📝 Run 'forge build' to compile contracts"
+echo "🧪 Run 'forge test' to run tests"
