@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
@@ -22,7 +21,6 @@ contract RivexLendingUpgradeable is
     ReentrancyGuardUpgradeable,
     PausableUpgradeable
 {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
     
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant LIQUIDATOR_ROLE = keccak256("LIQUIDATOR_ROLE");
@@ -175,7 +173,7 @@ contract RivexLendingUpgradeable is
         }
         
         // Transfer tokens
-        IERC20Upgradeable(token).safeTransferFrom(msg.sender, address(this), amount);
+        require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Transfer failed");
         
         // Update user info
         user.supplied += amount;
@@ -273,7 +271,7 @@ contract RivexLendingUpgradeable is
         market.totalSupply -= amount;
         
         // Transfer tokens
-        IERC20Upgradeable(token).safeTransfer(msg.sender, amount);
+        require(IERC20(token).transfer(msg.sender, amount), "Transfer failed");
         
         _updateRates(token);
         
@@ -365,7 +363,7 @@ contract RivexLendingUpgradeable is
         }
         
         // Transfer tokens
-        IERC20Upgradeable(token).safeTransfer(msg.sender, amount);
+        require(IERC20(token).transfer(msg.sender, amount), "Transfer failed");
         
         _updateRates(token);
         
@@ -449,7 +447,7 @@ contract RivexLendingUpgradeable is
         require(repayAmount > 0, "RivexLending: No debt to repay");
         
         // Transfer tokens
-        IERC20Upgradeable(token).safeTransferFrom(msg.sender, address(this), repayAmount);
+        require(IERC20(token).transferFrom(msg.sender, address(this), repayAmount), "Transfer failed");
         
         // Update user info
         user.borrowed -= repayAmount;
@@ -554,10 +552,10 @@ contract RivexLendingUpgradeable is
         require(collateralInfo.supplied >= collateralToSeize, "RivexLending: Insufficient collateral");
         
         // Transfer repayment from liquidator
-        IERC20Upgradeable(tokenBorrowed).safeTransferFrom(msg.sender, address(this), liquidationAmount);
+        require(IERC20(tokenBorrowed).transferFrom(msg.sender, address(this), liquidationAmount), "Transfer failed");
         
         // Transfer collateral to liquidator
-        IERC20Upgradeable(tokenCollateral).safeTransfer(msg.sender, collateralToSeize);
+        require(IERC20(tokenCollateral).transfer(msg.sender, collateralToSeize), "Transfer failed");
         
         // Update borrower's positions
         borrowerInfo.borrowed -= liquidationAmount;
